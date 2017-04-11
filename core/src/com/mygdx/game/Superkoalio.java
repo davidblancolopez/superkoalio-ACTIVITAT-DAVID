@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
@@ -35,7 +36,7 @@ public class Superkoalio extends ApplicationAdapter {
 	static class Koala {
 		static float WIDTH;
 		static float HEIGHT;
-		static float MAX_VELOCITY = 10f;//10f
+		static float MAX_VELOCITY = 8f;//10f
 		static float JUMP_VELOCITY = 40f;//40f
 		static float DAMPING = 0.0f;//0.87f
 
@@ -55,10 +56,15 @@ public class Superkoalio extends ApplicationAdapter {
 	private OrthogonalTiledMapRenderer renderer;
 	private OrthographicCamera camera;
 	private Texture koalaTexture;
+	private Texture vidasKoala;
+	private Texture hasMuerto;
 	private Animation<TextureRegion> stand;
 	private Animation<TextureRegion> walk;
 	private Animation<TextureRegion> jump;
 	private Koala koala;
+
+
+
 
 
 	//VIDAS DEL KOALA.
@@ -67,7 +73,8 @@ public class Superkoalio extends ApplicationAdapter {
 	private boolean checkPoint = false;
 	//MUSICA JUEGO.
 	private Music music;
-
+	private Music grito;
+	private Music salto;
 
 	private Pool<Rectangle> rectPool = new Pool<Rectangle>() {
 		@Override
@@ -89,6 +96,7 @@ public class Superkoalio extends ApplicationAdapter {
 		music.setLooping(true);
 		music.play();
 
+		vidasKoala = new Texture("vidaKoala.png");
 
 		// load the koala frames, split them, and assign them to Animations
 		koalaTexture = new Texture("koalio-2.png");
@@ -146,6 +154,31 @@ public class Superkoalio extends ApplicationAdapter {
 
 		// render debug rectangles
 		if (debug) renderDebug();
+
+
+
+		// render debug rectangles
+		if (debug) renderDebug();
+
+		SpriteBatch btch = new SpriteBatch();
+		btch.begin();
+
+		if(vidas == 3){
+			btch.draw(vidasKoala, 0, 8);
+			btch.draw(vidasKoala, 20, 8);
+			btch.draw(vidasKoala, 40, 8);
+		} else if (vidas == 2){
+			btch.draw(vidasKoala, 0, 8);
+			btch.draw(vidasKoala, 20, 8);
+		} else if (vidas == 1){
+			btch.draw(vidasKoala, 0, 8);
+			//Si no quedan vidas salta al menu de inicio
+		}
+		Gdx.app.log("Vidas", vidasKoala+"");
+		btch.end();
+
+
+
 	}
 
 	private void updateKoala (float deltaTime) {
@@ -158,10 +191,10 @@ public class Superkoalio extends ApplicationAdapter {
 
 		// check input and apply to velocity & state
 		if ((Gdx.input.isKeyPressed(Keys.SPACE) || isTouched(0.5f, 1)) && koala.grounded) {
-			music = Gdx.audio.newMusic(Gdx.files.internal("Jump.mp3"));
-			music.setVolume(0.2f);
-			music.setLooping(false);
-			music.play();
+			salto = Gdx.audio.newMusic(Gdx.files.internal("Jump.mp3"));
+			salto.setVolume(0.2f);
+			salto.setLooping(false);
+			salto.play();
 			koala.velocity.y += Koala.JUMP_VELOCITY;
 			koala.state = Koala.State.Jumping;
 			koala.grounded = false;
@@ -268,10 +301,10 @@ public class Superkoalio extends ApplicationAdapter {
 
 			//GRITO MUERTE
 			Gdx.app.log ("muerte", "Koala Dead");
-			music = Gdx.audio.newMusic(Gdx.files.internal("Scream.mp3"));
-			music.setVolume(0.7f);
-			music.setLooping(false);
-			music.play();
+			grito = Gdx.audio.newMusic(Gdx.files.internal("Scream.mp3"));
+			grito.setVolume(0.7f);
+			grito.setLooping(false);
+			grito.play();
 
 			muerteKoala();
 
@@ -306,7 +339,8 @@ public class Superkoalio extends ApplicationAdapter {
 			}
 
 		}else{
-
+				//Ponemos esto para que no grite infinitamente.
+				grito.stop();
 		}
 	}
 
