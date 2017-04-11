@@ -57,7 +57,6 @@ public class Superkoalio extends ApplicationAdapter {
 	private OrthographicCamera camera;
 	private Texture koalaTexture;
 	private Texture vidasKoala;
-	private Texture hasMuerto;
 	private Animation<TextureRegion> stand;
 	private Animation<TextureRegion> walk;
 	private Animation<TextureRegion> jump;
